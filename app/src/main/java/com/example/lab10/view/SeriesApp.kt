@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -32,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.lab10.data.SerieApiService
+import com.example.lab10.data.PostApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -41,19 +43,26 @@ fun SeriesApp() {
     val retrofit = Retrofit.Builder().baseUrl(urlBase)
         .addConverterFactory(GsonConverterFactory.create()).build()
     val servicio = retrofit.create(SerieApiService::class.java)
+
+    // NUEVO SERVICIO WEB: JSONPlaceholder API (Posts)
+    val urlBasePosts = "https://jsonplaceholder.typicode.com/"
+    val retrofitPosts = Retrofit.Builder().baseUrl(urlBasePosts)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+    val servicioPosts = retrofitPosts.create(PostApiService::class.java)
+
     val navController = rememberNavController()
 
     Scaffold(
         modifier = Modifier.padding(top = 40.dp),
         topBar = { BarraSuperior() },
         bottomBar = { BarraInferior(navController) },
-        floatingActionButton = { BotonFAB(navController, servicio) },
-        content = { paddingValues -> Contenido(paddingValues, navController, servicio) }
+        floatingActionButton = { BotonFAB(navController, servicio, servicioPosts) },
+        content = { paddingValues -> Contenido(paddingValues, navController, servicio, servicioPosts) }
     )
 }
 
 @Composable
-fun BotonFAB(navController: NavHostController, servicio: SerieApiService) {
+fun BotonFAB(navController: NavHostController, servicio: SerieApiService, servicioPosts: PostApiService) {
     val cbeState by navController.currentBackStackEntryAsState()
     val rutaActual = cbeState?.destination?.route
     if (rutaActual == "series") {
@@ -65,6 +74,17 @@ fun BotonFAB(navController: NavHostController, servicio: SerieApiService) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Add"
+            )
+        }
+    } else if (rutaActual == "posts") {
+        FloatingActionButton(
+            containerColor = Color.Blue,
+            contentColor = Color.White,
+            onClick = { navController.navigate("postNuevo") }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Add Post"
             )
         }
     }
@@ -104,6 +124,12 @@ fun BarraInferior(navController: NavHostController) {
             selected = navController.currentDestination?.route == "series",
             onClick = { navController.navigate("series") }
         )
+        NavigationBarItem(
+            icon = { Icon(Icons.Outlined.List, contentDescription = "Posts") },
+            label = { Text("Posts API") },
+            selected = navController.currentDestination?.route == "posts",
+            onClick = { navController.navigate("posts") }
+        )
     }
 }
 
@@ -111,7 +137,8 @@ fun BarraInferior(navController: NavHostController) {
 fun Contenido(
     pv: PaddingValues,
     navController: NavHostController,
-    servicio: SerieApiService
+    servicio: SerieApiService,
+    servicioPosts: PostApiService
 ) {
     Box(
         modifier = Modifier
@@ -136,6 +163,21 @@ fun Contenido(
                 navArgument("id") { type = NavType.IntType }
             )) {
                 ContenidoSerieEliminar(navController, servicio, it.arguments!!.getInt("id"))
+            }
+            // NUEVAS RUTAS DE POSTS
+            composable("posts") { ContenidoPostsListado(navController, servicioPosts) }
+            composable("postNuevo") {
+                ContenidoPostEditar(navController, servicioPosts, 0)
+            }
+            composable("postVer/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.IntType }
+            )) {
+                ContenidoPostEditar(navController, servicioPosts, it.arguments!!.getInt("id"))
+            }
+            composable("postDel/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.IntType }
+            )) {
+                ContenidoPostEliminar(navController, servicioPosts, it.arguments!!.getInt("id"))
             }
         }
     }

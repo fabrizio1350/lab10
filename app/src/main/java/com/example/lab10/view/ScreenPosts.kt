@@ -105,12 +105,13 @@ fun ContenidoPostEditar(navController: NavHostController, servicio: PostApiServi
     var body by remember { mutableStateOf<String>("") }
     var grabar by remember { mutableStateOf(false) }
 
-    if (id != 0) {
-        LaunchedEffect(Unit) {
+    LaunchedEffect(id) {
+        if (id != 0) {
             val objPost = servicio.selectPost(id.toString())
-            delay(100)
-            title = objPost.body()?.title ?: ""
-            body = objPost.body()?.body ?: ""
+            if (objPost.isSuccessful) {
+                title = objPost.body()?.title ?: ""
+                body = objPost.body()?.body ?: ""
+            }
         }
     }
 

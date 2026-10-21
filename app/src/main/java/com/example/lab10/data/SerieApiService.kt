@@ -18,7 +18,7 @@ interface SerieApiService {
 
     @Headers("Content-Type: application/json")
     @POST("serie")
-    suspend fun insertSerie(@Body serie: SerieModel): Response<SerieModel>
+    suspend fun insertSerie(@Body serie: SerieCreateModel): Response<SerieModel>
 
     @PUT("serie/{id}")
     suspend fun updateSerie(@Path("id") id: String, @Body serie: SerieModel): Response<SerieModel>

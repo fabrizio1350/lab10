@@ -165,12 +165,14 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
     }
 
     if (grabar) {
-        val objSerie = SerieModel(id, name!!, release_date!!, rating!!.toInt(), category!!)
         LaunchedEffect(Unit) {
-            if (id == 0)
-                servicio.insertSerie(objSerie)
-            else
+            if (id == 0) {
+                val objSerieCreate = com.example.lab10.data.SerieCreateModel(name!!, release_date!!, rating!!.toInt(), category!!)
+                servicio.insertSerie(objSerieCreate)
+            } else {
+                val objSerie = SerieModel(id, name!!, release_date!!, rating!!.toInt(), category!!)
                 servicio.updateSerie(id.toString(), objSerie)
+            }
         }
         grabar = false
         navController.navigate("series")

@@ -157,7 +157,11 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
         )
         Button(
             onClick = {
-                grabar = true
+                // Validamos que el rating sea un número válido para evitar que la app crashee
+                val ratingInt = rating?.toIntOrNull()
+                if (ratingInt != null && !name.isNullOrBlank() && !category.isNullOrBlank()) {
+                    grabar = true
+                }
             }
         ) {
             Text("Grabar", fontSize = 16.sp)
@@ -166,11 +170,12 @@ fun ContenidoSerieEditar(navController: NavHostController, servicio: SerieApiSer
 
     if (grabar) {
         LaunchedEffect(Unit) {
+            val ratingSafe = rating?.toIntOrNull() ?: 0 // Si falla, manda 0 por defecto
             if (id == 0) {
-                val objSerieCreate = com.example.lab10.data.SerieCreateModel(name!!, release_date!!, rating!!.toInt(), category!!)
+                val objSerieCreate = com.example.lab10.data.SerieCreateModel(name ?: "", release_date ?: "", ratingSafe, category ?: "")
                 servicio.insertSerie(objSerieCreate)
             } else {
-                val objSerie = SerieModel(id, name!!, release_date!!, rating!!.toInt(), category!!)
+                val objSerie = SerieModel(id, name ?: "", release_date ?: "", ratingSafe, category ?: "")
                 servicio.updateSerie(id.toString(), objSerie)
             }
         }

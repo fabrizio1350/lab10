@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class SerieModel(
     @SerializedName("id")
-    var id: Int,
+    var id: Int = 0,
     @SerializedName("name")
     var name: String,
     @SerializedName("release_date")

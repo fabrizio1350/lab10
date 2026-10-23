@@ -17,7 +17,7 @@ fun BooksApp() {
         val booksViewModel: BooksViewModel = viewModel(factory = BooksViewModel.Factory)
         HomeScreen(
             booksUiState = booksViewModel.booksUiState,
-            retryAction = { booksViewModel.getBooks("jazz history") }
+            retryAction = { booksViewModel.getBooks("android development") }
         )
     }
 }

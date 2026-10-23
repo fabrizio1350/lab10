@@ -17,7 +17,7 @@ import java.io.IOException
 
 sealed interface BooksUiState {
     data class Success(val books: List<BookInfo>) : BooksUiState
-    object Error : BooksUiState
+    data class Error(val message: String) : BooksUiState
     object Loading : BooksUiState
 }
 
@@ -26,7 +26,7 @@ class BooksViewModel(private val booksRepository: BooksRepository) : ViewModel()
         private set
 
     init {
-        getBooks("jazz history")
+        getBooks("android development")
     }
 
     fun getBooks(query: String) {
@@ -35,9 +35,11 @@ class BooksViewModel(private val booksRepository: BooksRepository) : ViewModel()
             booksUiState = try {
                 BooksUiState.Success(booksRepository.getBooks(query))
             } catch (e: IOException) {
-                BooksUiState.Error
+                e.printStackTrace()
+                BooksUiState.Error(e.message ?: "IOException")
             } catch (e: Exception) {
-                BooksUiState.Error
+                e.printStackTrace()
+                BooksUiState.Error(e.message ?: "Exception")
             }
         }
     }

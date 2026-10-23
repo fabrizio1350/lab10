@@ -12,14 +12,11 @@ class NetworkBooksRepository(
     override suspend fun getBooks(query: String): List<BookInfo> {
         val searchResponse = bookService.searchBooks(query)
         val items = searchResponse.items ?: emptyList()
-        val books = mutableListOf<BookInfo>()
-        for (item in items) {
-            try {
-                val bookInfo = bookService.getBook(item.id)
-                books.add(bookInfo)
-            } catch (e: Exception) {
-                // Ignore if one fails
-            }
+        val books = items.map { item ->
+            BookInfo(
+                id = item.id,
+                volumeInfo = item.volumeInfo
+            )
         }
         return books
     }

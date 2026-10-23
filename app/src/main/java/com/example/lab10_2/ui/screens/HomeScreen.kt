@@ -38,7 +38,7 @@ fun HomeScreen(
             books = booksUiState.books,
             modifier = modifier.fillMaxWidth()
         )
-        is BooksUiState.Error -> ErrorScreen(retryAction, modifier = modifier.fillMaxSize())
+        is BooksUiState.Error -> ErrorScreen(booksUiState.message, retryAction, modifier = modifier.fillMaxSize())
     }
 }
 
@@ -53,13 +53,13 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+fun ErrorScreen(message: String, retryAction: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Failed to load")
+        Text("Failed to load: $message")
         Button(onClick = retryAction) {
             Text("Retry")
         }

@@ -31,17 +31,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.lab10.data.PostApiService
+import com.example.lab10.data.DeviceApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 @Composable
 fun SeriesApp() {
-    // SERVICIO WEB: JSONPlaceholder API (Posts)
-    val urlBasePosts = "https://jsonplaceholder.typicode.com/"
-    val retrofitPosts = Retrofit.Builder().baseUrl(urlBasePosts)
+    // SERVICIO WEB: Restful-API (Devices)
+    val urlBaseDevices = "https://api.restful-api.dev/"
+    val retrofitDevices = Retrofit.Builder().baseUrl(urlBaseDevices)
         .addConverterFactory(GsonConverterFactory.create()).build()
-    val servicioPosts = retrofitPosts.create(PostApiService::class.java)
+    val servicioDevices = retrofitDevices.create(DeviceApiService::class.java)
 
     val navController = rememberNavController()
 
@@ -50,7 +50,7 @@ fun SeriesApp() {
         topBar = { BarraSuperior() },
         bottomBar = { BarraInferior(navController) },
         floatingActionButton = { BotonFAB(navController) },
-        content = { paddingValues -> Contenido(paddingValues, navController, servicioPosts) }
+        content = { paddingValues -> Contenido(paddingValues, navController, servicioDevices) }
     )
 }
 
@@ -58,15 +58,15 @@ fun SeriesApp() {
 fun BotonFAB(navController: NavHostController) {
     val cbeState by navController.currentBackStackEntryAsState()
     val rutaActual = cbeState?.destination?.route
-    if (rutaActual == "posts") {
+    if (rutaActual == "devices") {
         FloatingActionButton(
             containerColor = Color.Blue,
             contentColor = Color.White,
-            onClick = { navController.navigate("postNuevo") }
+            onClick = { navController.navigate("deviceNuevo") }
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
-                contentDescription = "Add Post"
+                contentDescription = "Add Device"
             )
         }
     }
@@ -78,7 +78,7 @@ fun BarraSuperior() {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "POSTS API",
+                text = "DEVICES API",
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
@@ -101,10 +101,10 @@ fun BarraInferior(navController: NavHostController) {
             onClick = { navController.navigate("inicio") }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Outlined.List, contentDescription = "Posts") },
-            label = { Text("Posts API") },
-            selected = navController.currentDestination?.route == "posts",
-            onClick = { navController.navigate("posts") }
+            icon = { Icon(Icons.Outlined.List, contentDescription = "Devices") },
+            label = { Text("Devices API") },
+            selected = navController.currentDestination?.route == "devices",
+            onClick = { navController.navigate("devices") }
         )
     }
 }
@@ -113,7 +113,7 @@ fun BarraInferior(navController: NavHostController) {
 fun Contenido(
     pv: PaddingValues,
     navController: NavHostController,
-    servicioPosts: PostApiService
+    servicioDevices: DeviceApiService
 ) {
     Box(
         modifier = Modifier
@@ -126,20 +126,20 @@ fun Contenido(
         ) {
             composable("inicio") { ScreenInicio() }
             
-            // RUTAS DE POSTS API PUBLICA
-            composable("posts") { ContenidoPostsListado(navController, servicioPosts) }
-            composable("postNuevo") {
-                ContenidoPostEditar(navController, servicioPosts, 0)
+            // RUTAS DE DEVICES API PUBLICA
+            composable("devices") { ContenidoDevicesListado(navController, servicioDevices) }
+            composable("deviceNuevo") {
+                ContenidoDeviceEditar(navController, servicioDevices, "0")
             }
-            composable("postVer/{id}", arguments = listOf(
-                navArgument("id") { type = NavType.IntType }
+            composable("deviceVer/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.StringType }
             )) {
-                ContenidoPostEditar(navController, servicioPosts, it.arguments!!.getInt("id"))
+                ContenidoDeviceEditar(navController, servicioDevices, it.arguments!!.getString("id")!!)
             }
-            composable("postDel/{id}", arguments = listOf(
-                navArgument("id") { type = NavType.IntType }
+            composable("deviceDel/{id}", arguments = listOf(
+                navArgument("id") { type = NavType.StringType }
             )) {
-                ContenidoPostEliminar(navController, servicioPosts, it.arguments!!.getInt("id"))
+                ContenidoDeviceEliminar(navController, servicioDevices, it.arguments!!.getString("id")!!)
             }
         }
     }
